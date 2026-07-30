@@ -11,14 +11,14 @@ Usage:
   git-history-file.sh [options]
 
 Options:
-  -n, --limit N          Number of latest matching commits (default: 10)
+  -n, --limit N          Number of latest file changes (default: 10)
   -p, --pattern REGEX    File path regex pattern (required)
   --sha256               Use sha256 instead of md5
   -h, --help             Show help
 
 Example:
   ./git-history-file.sh \
-      --pattern 'libexample\\.so.*' \
+      --pattern 'libexample\.so.*' \
       --limit 10
 EOF
 }
@@ -50,9 +50,12 @@ cd "$(git rev-parse --show-toplevel)"
 
 count=0
 
-for commit in $(git rev-list HEAD); do
+# Traverse commits, but only output commits that actually modify matched files.
+# Note: merge commits may contain duplicate paths, therefore sort uniquely.
+while read -r commit; do
     mapfile -t files < <(
         git diff-tree -m --root --no-commit-id --name-only -r "$commit" |
+        sort -u |
         grep -E "$PATTERN" || true
     )
 
@@ -63,8 +66,9 @@ for commit in $(git rev-list HEAD); do
 
     for file in "${files[@]}"; do
         if git cat-file -e "$commit:$file" 2>/dev/null; then
-            hash=$(git cat-file blob "$commit:$file" | $HASH_CMD | awk '{print $1}')
-            size=$(git cat-file blob "$commit:$file" | wc -c)
+            blob=$(git rev-parse "$commit:$file")
+            hash=$(git cat-file blob "$blob" | $HASH_CMD | awk '{print $1}')
+            size=$(git cat-file -s "$blob")
             status="modified"
         else
             hash="-"
@@ -72,9 +76,10 @@ for commit in $(git rev-list HEAD); do
             status="deleted"
         fi
 
-        printf "  %-8s %s %s %s\n" "$status" "$hash" "$size" "$file"
+        printf "  %-8s %-40s %-12s %s\n" "$status" "$hash" "$size" "$file"
     done
 
     count=$((count + 1))
     [[ $count -ge $LIMIT ]] && break
-done
+
+done < <(git rev-list HEAD)
