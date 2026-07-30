@@ -4,40 +4,39 @@ set -euo pipefail
 
 usage() {
     cat <<'EOF'
-Usage:
+用法：
   history-file-md5.sh [-n COUNT] [-r REGEX] [REV]
 
-List the most recent commits that actually changed files matching REGEX,
-and print the MD5 of each matching file as it exists after that commit.
+查找最近真正修改过匹配文件的提交，并输出这些文件在对应提交后的 MD5。
 
-Options:
-  -n COUNT   Number of matching commits to print. Default: 10
-  -r REGEX   Extended regular expression matched against repository-relative paths.
-             Default: (^|/)libhq_bsd_proc\.so\.1\.1\.0[^/]*$
-  -h         Show this help.
+选项：
+  -n COUNT   输出的匹配提交数量，默认：10
+  -r REGEX   用于匹配仓库相对路径的扩展正则表达式。
+             默认：(^|/)libexample\.so[^/]*$
+  -h         显示帮助信息。
 
-Arguments:
-  REV        Starting revision. Default: HEAD
+参数：
+  REV        历史遍历起点，默认：HEAD
 
-Examples:
+示例：
   history-file-md5.sh \
     -n 10 \
-    -r '(^|/)libhq_bsd_proc\.so\.1\.1\.0[^/]*$'
+    -r '(^|/)libexample\.so\.1\.2[^/]*$'
 
   history-file-md5.sh \
     -n 5 \
-    -r '(^|/)libexample\.so(\.[0-9]+)*$' \
+    -r '(^|/)libsample\.so(\.[0-9]+)*$' \
     release/1.2
 
-Notes:
-  - COUNT means matching commits, not merely the latest COUNT repository commits.
-  - Merge commits are inspected against each parent by using git diff-tree -m.
-  - Deleted matching files are printed as DELETED and have no checksum.
+说明：
+  - COUNT 表示修改过匹配文件的提交数，不是最近的普通提交总数。
+  - merge commit 通过 git diff-tree -m 分别与父提交比较。
+  - 删除的匹配文件显示为 DELETED，不输出校验值。
 EOF
 }
 
 count_limit=10
-pattern='(^|/)libhq_bsd_proc\.so\.1\.1\.0[^/]*$'
+pattern='(^|/)libexample\.so[^/]*$'
 revision='HEAD'
 
 while getopts ':n:r:h' option; do
@@ -53,12 +52,12 @@ while getopts ':n:r:h' option; do
             exit 0
             ;;
         :)
-            printf 'Error: option -%s requires an argument.\n' "$OPTARG" >&2
+            printf '错误：选项 -%s 缺少参数。\n' "$OPTARG" >&2
             usage >&2
             exit 2
             ;;
         \?)
-            printf 'Error: unknown option -%s.\n' "$OPTARG" >&2
+            printf '错误：未知选项 -%s。\n' "$OPTARG" >&2
             usage >&2
             exit 2
             ;;
@@ -67,7 +66,7 @@ done
 shift $((OPTIND - 1))
 
 if (($# > 1)); then
-    printf 'Error: expected at most one REV argument.\n' >&2
+    printf '错误：最多只能提供一个 REV 参数。\n' >&2
     usage >&2
     exit 2
 fi
@@ -77,26 +76,26 @@ if (($# == 1)); then
 fi
 
 if [[ ! $count_limit =~ ^[1-9][0-9]*$ ]]; then
-    printf 'Error: COUNT must be a positive integer: %s\n' "$count_limit" >&2
+    printf '错误：COUNT 必须是正整数：%s\n' "$count_limit" >&2
     exit 2
 fi
 
 for command_name in git grep sort md5sum awk; do
     if ! command -v "$command_name" >/dev/null 2>&1; then
-        printf 'Error: required command not found: %s\n' "$command_name" >&2
+        printf '错误：缺少必要命令：%s\n' "$command_name" >&2
         exit 127
     fi
 done
 
 repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || {
-    printf 'Error: current directory is not inside a Git repository.\n' >&2
+    printf '错误：当前目录不在 Git 仓库中。\n' >&2
     exit 1
 }
 
 cd "$repo_root"
 
 git rev-parse --verify "${revision}^{commit}" >/dev/null 2>&1 || {
-    printf 'Error: revision does not resolve to a commit: %s\n' "$revision" >&2
+    printf '错误：REV 无法解析为提交：%s\n' "$revision" >&2
     exit 1
 }
 
@@ -137,6 +136,6 @@ while IFS= read -r commit; do
 done < <(git rev-list "$revision")
 
 if ((matching_commit_count == 0)); then
-    printf 'No commits changed files matching: %s\n' "$pattern"
+    printf '未找到修改过匹配文件的提交：%s\n' "$pattern"
     exit 3
 fi
