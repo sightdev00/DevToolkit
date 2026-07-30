@@ -1,46 +1,56 @@
 # DevToolkit
 
-Practical, reusable tools for software engineering, debugging, automation, and productivity.
+面向软件工程、调试、自动化和研发效率的可复用工具集。
 
-## Scope
+## 仓库定位
 
-This repository collects tools that are:
+本仓库收集满足以下条件的工具：
 
-- reusable across projects;
-- small enough to understand independently;
-- documented with purpose, assumptions, usage, and failure modes;
-- kept separate from project-specific business code.
+- 能跨项目复用，而不是只服务于单个业务仓库；
+- 规模足够小，可以独立理解、运行和维护；
+- 明确说明用途、前提、用法、输出和失败模式；
+- 与具体项目的业务代码保持分离。
 
-## Structure
+本仓库不是临时脚本堆放区。只有经过抽象、参数化和基本验证的工具，才应进入这里。
+
+## 目录结构
 
 ```text
 DevToolkit/
-├── git/       # Git history, repository inspection, migration, and cleanup tools
-├── linux/     # Linux diagnostics and system utilities
-├── network/   # Network, proxy, SSH, and transfer helpers
-├── data/      # Dataset and file-management utilities
-├── model/     # Model artifact, checksum, and deployment helpers
-└── docs/      # Repository conventions and cross-tool documentation
+├── git/       # Git 历史、仓库检查、迁移与清理工具
+├── linux/     # Linux 系统诊断与通用工具
+├── network/   # 网络、代理、SSH 与文件传输工具
+├── data/      # 数据集与文件管理工具
+├── model/     # 模型制品、校验与部署辅助工具
+└── docs/      # 仓库规范及跨工具文档
 ```
 
-Directories are created only when a real reusable tool exists; empty category scaffolding is intentionally avoided.
+只有出现真实、可复用的工具时才创建对应目录，避免提前搭建空目录和形式化框架。
 
-## Tools
+## 已有工具
 
 ### Git
 
-- [`git/history-file-md5.sh`](git/history-file-md5.sh): list the most recent commits that actually changed files matching a regular expression, together with the MD5 values of those files after each commit.
+- [`git/history-file-md5.sh`](git/history-file-md5.sh)：查找最近若干个真正修改过目标文件的提交，并输出这些文件在对应提交后的 MD5。
 
-## Tool acceptance criteria
+## 工具收录标准
 
-A script should enter this repository only when it has:
+一个脚本进入本仓库前，至少应满足：
 
-1. a recurring engineering use case;
-2. configurable inputs rather than hard-coded project paths;
-3. explicit prerequisites and compatibility assumptions;
-4. predictable output and non-zero exit codes on failure;
-5. a usage example and known limitations.
+1. 对应重复出现的真实工程问题；
+2. 输入可配置，不硬编码项目路径和业务常量；
+3. 明确依赖、兼容性和运行前提；
+4. 输出稳定，失败时返回非零退出码；
+5. 提供最小使用示例和已知限制；
+6. 不重复造已有成熟工具的轮子，除非封装后明显降低了使用成本；
+7. 工具名称表达“解决什么问题”，而不是使用场景中的临时叫法。
 
-## License
+## 语言约定
 
-No license has been selected yet. Unless a license file is added, the repository remains publicly visible but does not grant general reuse rights.
+- README、设计说明和使用文档以中文为主；
+- 文件名、目录名、命令行参数、代码标识符和提交信息使用英文；
+- 必要的英文术语保留原文，避免不准确翻译。
+
+## 许可证
+
+当前尚未选择开源许可证。在添加许可证文件之前，仓库虽然公开可见，但不代表自动授予他人复制、修改或再分发的权利。
