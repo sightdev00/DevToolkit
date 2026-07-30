@@ -1,0 +1,5 @@
+commit: abc1234
+date:   2026-07-01 10:00:00 +0800
+msg:    update library
+
+modified  8cxxxx  123456  lib/libexample.so.1
