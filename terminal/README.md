@@ -68,6 +68,10 @@ PTY 和子进程继续运行
 
 需要跨主机重启、崩溃自动拉起、资源限制和依赖管理时，应使用 systemd、容器编排、Slurm 或专门的任务系统，而不是把终端复用器当作服务管理器。
 
+## 机制专题
+
+- [tmux 启动目录与 Shell 初始化链路](./tmux/start-directory-and-shell-init.md)：解释 `tmux -c` 或显式 `cd` 已生效后，为什么仍可能被 `~/.bashrc` 等启动文件再次改目录，以及如何用 `bash --noprofile --norc` 做区分实验。
+
 ## 资料维护原则
 
 - 产品能力优先引用官方文档；
