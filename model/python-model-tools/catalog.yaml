@@ -1,0 +1,502 @@
+schema_version: 1
+last_verified: "2026-08-06"
+
+status_definitions:
+  active: current general-purpose core tool
+  conditional: use only for a specific framework, backend, or platform
+  legacy: retained for an older incompatible platform
+  reference: official examples or model repository, not a Python package
+  deprecated: no longer recommended; follow the replacement path
+
+entries:
+  - id: onnx
+    display_name: ONNX
+    type: python-package
+    authority:
+      repository: onnx/onnx
+    package:
+      distribution: onnx
+      import_name: onnx
+      install_source: pypi
+    formats: [onnx]
+    platforms: [cross-platform]
+    capabilities:
+      - model-load-save
+      - model-checker
+      - shape-inference
+      - operator-schema
+      - opset-conversion
+      - reference-evaluator
+    status: active
+    verified_release: "1.22.0"
+    last_verified: "2026-08-06"
+    use_when:
+      - inspecting or modifying ONNX protobuf models
+      - checking model structure before and after conversion
+    avoid_when:
+      - treating checker success as numerical equivalence
+      - using it as the production inference runtime
+    validation_required:
+      - onnx.checker
+      - input-output contract inspection
+      - runtime output comparison after graph changes
+
+  - id: onnxruntime
+    display_name: ONNX Runtime
+    type: python-package
+    authority:
+      repository: microsoft/onnxruntime
+    package:
+      distributions:
+        cpu: onnxruntime
+        gpu: onnxruntime-gpu
+      import_name: onnxruntime
+      install_source: pypi
+    formats: [onnx, ort]
+    platforms: [cpu, cuda, directml, coreml, tensorrt, openvino, other-execution-providers]
+    capabilities:
+      - reference-inference
+      - execution-provider-comparison
+      - graph-optimization
+      - quantization-tools
+      - profiling
+    status: active
+    verified_release: "1.28.0"
+    last_verified: "2026-08-06"
+    use_when:
+      - creating a reproducible ONNX baseline
+      - comparing CPU and accelerator execution providers
+    avoid_when:
+      - assuming different execution providers are numerically identical
+      - mixing CPU and GPU distributions in one environment without checking conflicts
+    validation_required:
+      - record execution providers
+      - record graph optimization level
+      - compare with source-framework outputs when export correctness matters
+
+  - id: onnxsim
+    display_name: ONNX Simplifier
+    type: python-package
+    authority:
+      repository: onnxsim/onnxsim
+    package:
+      distribution: onnxsim
+      import_name: onnxsim
+      install_source: pypi
+    formats: [onnx]
+    platforms: [cross-platform]
+    capabilities:
+      - graph-simplification
+      - constant-folding
+      - redundant-node-elimination
+      - dynamic-shape-handling
+    status: active
+    verified_release: "0.7.0"
+    last_verified: "2026-08-06"
+    use_when:
+      - simplifying exported graphs before a downstream converter
+      - removing graph patterns that block deployment
+    avoid_when:
+      - assuming simplification is semantics-preserving without test inputs
+      - running it blindly on custom operators
+    validation_required:
+      - checker after simplification
+      - same-input output comparison
+      - dynamic-shape regression tests when applicable
+    notes:
+      - The project maintains an optimizer fork for fixes not yet available upstream.
+
+  - id: netron
+    display_name: Netron
+    type: python-package
+    authority:
+      repository: lutzroeder/netron
+    package:
+      distribution: netron
+      import_name: netron
+      install_source: pypi
+    formats: [onnx, torchscript, tflite, tensorflow, openvino, rknn-experimental, other]
+    platforms: [cross-platform]
+    capabilities:
+      - graph-visualization
+      - input-output-inspection
+      - initializer-inspection
+      - metadata-inspection
+    status: active
+    verified_release: null
+    last_verified: "2026-08-06"
+    use_when:
+      - visually checking graph structure and model contracts
+    avoid_when:
+      - using visual inspection as numerical validation
+    validation_required:
+      - confirm findings with model APIs or runtime output
+
+  - id: polygraphy
+    display_name: Polygraphy
+    type: python-package
+    authority:
+      repository: NVIDIA/TensorRT
+      subpath: tools/Polygraphy
+    package:
+      distribution: polygraphy
+      import_name: polygraphy
+      install_source: pypi-or-nvidia-index
+    formats: [onnx, tensorrt-engine]
+    platforms: [cpu, cuda, tensorrt]
+    capabilities:
+      - multi-backend-inference
+      - output-comparison
+      - model-reduction
+      - data-loader
+      - debugging
+    status: conditional
+    verified_release: null
+    last_verified: "2026-08-06"
+    use_when:
+      - comparing ONNX Runtime and TensorRT outputs
+      - reducing a failing graph or isolating mismatched layers
+    avoid_when:
+      - expecting it to define task-level acceptance thresholds automatically
+    validation_required:
+      - record tolerances and comparison method
+      - preserve failing inputs and reduced model provenance
+
+  - id: onnx-graphsurgeon
+    display_name: ONNX GraphSurgeon
+    type: python-package
+    authority:
+      repository: NVIDIA/TensorRT
+      subpath: tools/onnx-graphsurgeon
+    package:
+      distribution: onnx-graphsurgeon
+      import_name: onnx_graphsurgeon
+      install_source: pypi-or-nvidia-index
+    formats: [onnx]
+    platforms: [cross-platform]
+    capabilities:
+      - graph-editing
+      - node-insertion-removal
+      - tensor-rewiring
+      - graph-cleanup
+      - topological-sort
+    status: conditional
+    verified_release: null
+    last_verified: "2026-08-06"
+    use_when:
+      - making controlled programmatic ONNX graph edits
+    avoid_when:
+      - modifying production graphs without a before-after contract
+    validation_required:
+      - checker and shape inference
+      - deterministic diff of graph contracts
+      - same-input numerical comparison
+
+  - id: onnxoptimizer
+    display_name: ONNX Optimizer
+    type: python-package
+    authority:
+      repository: onnx/optimizer
+    package:
+      distribution: onnxoptimizer
+      import_name: onnxoptimizer
+      install_source: pypi
+    formats: [onnx]
+    platforms: [cross-platform]
+    capabilities:
+      - explicit-optimization-passes
+    status: conditional
+    verified_release: null
+    last_verified: "2026-08-06"
+    use_when:
+      - a specific optimization pass is required and understood
+    avoid_when:
+      - applying broad pass lists without regression tests
+      - assuming behavior is identical to onnxsim's maintained optimizer fork
+    validation_required:
+      - record exact pass list
+      - checker and output comparison
+
+  - id: tensorrt
+    display_name: NVIDIA TensorRT
+    type: python-package
+    authority:
+      repository: NVIDIA/TensorRT
+    package:
+      distribution: tensorrt
+      import_name: tensorrt
+      install_source: pypi-or-nvidia-index
+    formats: [onnx, tensorrt-network, tensorrt-engine]
+    platforms: [nvidia-gpu]
+    capabilities:
+      - onnx-parsing
+      - engine-building
+      - precision-calibration
+      - gpu-inference
+      - profiling
+    status: conditional
+    verified_release: null
+    last_verified: "2026-08-06"
+    use_when:
+      - deploying or benchmarking models on NVIDIA GPUs
+    avoid_when:
+      - ignoring CUDA, driver, GPU architecture, and TensorRT compatibility
+      - comparing latency without fixed build profiles and precision settings
+    validation_required:
+      - record builder configuration and optimization profiles
+      - compare engine outputs with an ONNX baseline
+
+  - id: openvino
+    display_name: OpenVINO
+    type: python-package
+    authority:
+      repository: openvinotoolkit/openvino
+    package:
+      distribution: openvino
+      import_name: openvino
+      install_source: pypi
+    formats: [onnx, openvino-ir, tensorflow, tflite, paddle]
+    platforms: [intel-cpu, intel-gpu, intel-npu]
+    capabilities:
+      - model-conversion
+      - graph-optimization
+      - multi-device-inference
+      - profiling
+    status: conditional
+    verified_release: null
+    last_verified: "2026-08-06"
+    use_when:
+      - targeting Intel runtime backends
+    avoid_when:
+      - following obsolete openvino-dev or legacy Model Optimizer tutorials without version checks
+    validation_required:
+      - record device and performance hints
+      - compare converted-model outputs with the source baseline
+
+  - id: rknn-toolkit2
+    display_name: RKNN Toolkit2
+    type: vendor-toolkit
+    authority:
+      repository: airockchip/rknn-toolkit2
+    package:
+      distribution: vendor-wheel
+      import_name: rknn
+      install_source: official-repository-release-or-sdk
+    formats: [onnx, pytorch, tensorflow, tflite, rknn]
+    platforms: [rknpu2]
+    capabilities:
+      - model-conversion
+      - quantization
+      - accuracy-analysis
+      - simulator-inference
+      - performance-evaluation
+    status: conditional
+    verified_release: "2.3.2"
+    last_verified: "2026-08-06"
+    use_when:
+      - converting models for supported RKNPU2 platforms
+      - working with RV1126B and other platforms listed by the matching SDK release
+    avoid_when:
+      - using it for legacy RKNPU1 platforms
+      - mixing toolkit, runtime, model-zoo, and firmware versions arbitrarily
+    validation_required:
+      - record chip target and toolkit/runtime versions
+      - preserve quantization dataset manifest
+      - compare simulator, PC baseline, and board outputs
+
+  - id: rknn-toolkit-lite2
+    display_name: RKNN Toolkit Lite2
+    type: vendor-toolkit
+    authority:
+      repository: airockchip/rknn-toolkit2
+    package:
+      distribution: vendor-wheel
+      import_name: rknnlite
+      install_source: official-repository-release-or-sdk
+    formats: [rknn]
+    platforms: [rknpu2-linux-board]
+    capabilities:
+      - board-python-inference
+      - runtime-query
+    status: conditional
+    verified_release: null
+    last_verified: "2026-08-06"
+    use_when:
+      - running Python validation on a supported RKNPU2 board
+    avoid_when:
+      - treating Python validation as final C or C++ integration acceptance
+    validation_required:
+      - record runtime and firmware versions
+      - compare with final deployment API when release behavior matters
+
+  - id: rknn-toolkit
+    display_name: RKNN Toolkit
+    type: vendor-toolkit
+    authority:
+      repository: rockchip-linux/rknn-toolkit
+    package:
+      distribution: vendor-wheel
+      import_name: rknn
+      install_source: official-repository-or-legacy-sdk
+    formats: [onnx, caffe, tensorflow, tflite, rknn]
+    platforms: [rknpu1]
+    capabilities:
+      - model-conversion
+      - quantization
+      - simulator-inference
+    status: legacy
+    verified_release: null
+    last_verified: "2026-08-06"
+    use_when:
+      - maintaining an existing RKNPU1 platform such as RV1126 or RV1109
+    avoid_when:
+      - treating Toolkit2 as a drop-in upgrade
+      - starting a new RKNPU2 project with the legacy toolkit
+    validation_required:
+      - pin the complete legacy SDK environment
+      - preserve known-good wheel and runtime provenance outside this repository
+
+  - id: rknn-toolkit-lite
+    display_name: RKNN Toolkit Lite
+    type: vendor-toolkit
+    authority:
+      repository: rockchip-linux/rknn-toolkit
+    package:
+      distribution: vendor-wheel
+      import_name: rknnlite
+      install_source: official-repository-or-legacy-sdk
+    formats: [rknn]
+    platforms: [rknpu1-linux-board]
+    capabilities:
+      - board-python-inference
+    status: legacy
+    verified_release: null
+    last_verified: "2026-08-06"
+    use_when:
+      - validating an existing RKNPU1 deployment on board
+    avoid_when:
+      - using it with RKNPU2 models or runtime
+    validation_required:
+      - pin toolkit-lite, runtime, firmware, and model versions together
+
+  - id: rknn-model-zoo
+    display_name: RKNN Model Zoo
+    type: reference-repository
+    authority:
+      repository: airockchip/rknn_model_zoo
+    package: null
+    formats: [onnx, rknn]
+    platforms: [rknpu1, rknpu2]
+    capabilities:
+      - official-conversion-examples
+      - python-api-examples
+      - c-api-examples
+      - model-compatibility-reference
+    status: reference
+    verified_release: null
+    last_verified: "2026-08-06"
+    use_when:
+      - finding a vendor reference for a matching chip and SDK version
+    avoid_when:
+      - copying an example without matching model, toolkit, runtime, and chip versions
+    validation_required:
+      - record the exact repository commit and matching SDK release
+
+  - id: tf2onnx
+    display_name: tf2onnx
+    type: python-package
+    authority:
+      repository: onnx/tensorflow-onnx
+    package:
+      distribution: tf2onnx
+      import_name: tf2onnx
+      install_source: pypi
+    formats: [tensorflow, keras, tflite, onnx]
+    platforms: [cross-platform]
+    capabilities:
+      - tensorflow-to-onnx
+      - keras-to-onnx
+      - tflite-to-onnx
+    status: conditional
+    verified_release: null
+    last_verified: "2026-08-06"
+    use_when:
+      - a TensorFlow-family source model must be exported to ONNX
+    avoid_when:
+      - installing it by default without a TensorFlow source model
+      - assuming every current ONNX opset is equally tested
+    validation_required:
+      - source-framework versus ONNX Runtime output comparison
+      - record TensorFlow and opset versions
+
+  - id: paddle2onnx
+    display_name: Paddle2ONNX
+    type: python-package
+    authority:
+      repository: PaddlePaddle/Paddle2ONNX
+    package:
+      distribution: paddle2onnx
+      import_name: paddle2onnx
+      install_source: pypi
+    formats: [paddle, onnx]
+    platforms: [cross-platform]
+    capabilities:
+      - paddle-to-onnx
+    status: conditional
+    verified_release: null
+    last_verified: "2026-08-06"
+    use_when:
+      - a PaddlePaddle model must be exported to ONNX
+    avoid_when:
+      - installing it in projects without PaddlePaddle inputs
+    validation_required:
+      - PaddlePaddle versus ONNX Runtime output comparison
+      - record PaddlePaddle and opset versions
+
+  - id: onnx-tensorflow
+    display_name: ONNX-TensorFlow
+    type: python-package
+    authority:
+      repository: onnx/onnx-tensorflow
+    package:
+      distribution: onnx-tf
+      import_name: onnx_tf
+      install_source: pypi
+    formats: [onnx, tensorflow]
+    platforms: [cross-platform]
+    capabilities:
+      - onnx-to-tensorflow
+    status: deprecated
+    verified_release: null
+    last_verified: "2026-08-06"
+    use_when:
+      - reproducing or maintaining an existing legacy conversion path
+    avoid_when:
+      - selecting a new default ONNX-to-TensorFlow workflow
+    validation_required:
+      - identify a maintained replacement before new adoption
+      - preserve legacy environment and conversion tests
+
+  - id: onnxruntime-tools
+    display_name: ONNX Runtime Tools
+    type: python-package
+    authority:
+      repository: microsoft/onnxruntime
+    package:
+      distribution: onnxruntime-tools
+      import_name: onnxruntime_tools
+      install_source: pypi
+    formats: [onnx]
+    platforms: [cross-platform]
+    capabilities:
+      - legacy-transformer-tools
+      - legacy-optimization-tools
+    status: deprecated
+    verified_release: null
+    last_verified: "2026-08-06"
+    use_when:
+      - reproducing an older environment that explicitly depends on the package
+    avoid_when:
+      - adding it to a new project before checking current ONNX Runtime built-in modules
+    validation_required:
+      - document why the legacy package is still required

@@ -1,142 +1,111 @@
 # git-history-file
 
-## 解决的问题
+查询某类文件在 Git 历史中的真实实体变化，而不是只查看最近若干个普通提交。
 
-在工程交付中，经常需要确认：
+适用于动态库、模型、固件和其他二进制制品的历史核查：
 
-- 某个动态库、模型、固件文件在哪些版本发生变化；
-- 两次发布的二进制实体是否一致；
-- 某个文件历史版本对应的真实内容是否相同。
-
-`git log -- path` 只能回答：
-
-> 哪些提交涉及这个路径。
-
-但工程排障通常关心：
-
-> 这个文件实体什么时候变化？变化后的内容是否一致？
-
-本工具基于 Git 的 commit/tree/blob 模型，提取目标文件历史变化和内容指纹。
-
----
+- 哪些提交真正改变了目标文件；
+- 文件在提交后的内容校验值与大小；
+- 文件是新增、修改、删除还是类型变化；
+- 两个发布记录中的文件名不同，但实体内容是否相同。
 
 ## 使用方法
 
 ```bash
 ./git-history-file.sh \
-    --pattern 'libexample\.so.*' \
-    --limit 10
+  --pattern '(^|/)libexample\.so(\.[0-9]+)*$' \
+  --limit 10
 ```
 
-参数：
-
-- `--pattern`：文件路径正则匹配规则（必选）
-- `--limit`：最近多少次目标文件变化
-- `--sha256`：使用 SHA256 替代 MD5
-
----
-
-## 输出说明
-
-示例：
-
-```text
-commit: abc1234
-date:   2026-07-01 10:00:00 +0800
-msg:    update library
-
-  modified 8cxxxx 123456 lib/libexample.so.1
-```
-
-字段：
-
-- commit：发生目标文件变化的提交
-- hash：文件内容指纹
-- size：文件大小
-- path：文件路径
-- status：modified / deleted
-
----
-
-## 实现原理
-
-Git 中一个文件不是直接挂在 commit 上，而是：
-
-```
-commit
-  |
- tree
-  |
- blob
-  |
- file content
-```
-
-工具流程：
-
-1. 遍历历史 commit；
-2. 判断 commit 是否修改匹配文件；
-3. 获取对应 blob；
-4. 计算文件 hash。
-
-因此它关注的是：
-
-```
-Git 历史
-   ↓
-文件实体变化
-   ↓
-内容身份确认
-```
-
----
-
-## 常见误区
-
-### 最近 N 个 commit 不等于最近 N 次文件变化
-
-例如：
+从指定版本开始查询模型文件，并使用 SHA-256：
 
 ```bash
-git rev-list -10 HEAD
+./git-history-file.sh \
+  --pattern '(^|/)models/.*\.onnx$' \
+  --limit 5 \
+  --hash sha256 \
+  --revision release/1.2
 ```
 
-只表示最近 10 个提交，其中可能没有目标文件变化。
+`REV` 也可以作为唯一的位置参数：
 
-本工具查找的是：
+```bash
+./git-history-file.sh \
+  --pattern '(^|/)firmware/.*\.bin$' \
+  v2.0.0
+```
 
-> 最近 N 次目标文件变化。
+## 参数
 
----
+| 参数 | 含义 |
+|---|---|
+| `-p, --pattern REGEX` | 匹配仓库相对路径的扩展正则表达式，必选 |
+| `-n, --limit COUNT` | 最近多少次“匹配文件发生变化的提交”，默认 10 |
+| `--hash sha256\|md5` | 内容校验算法，默认 SHA-256 |
+| `--sha256` / `--md5` | 校验算法快捷选项 |
+| `-r, --revision REV` | 历史遍历起点，默认 `HEAD` |
 
-## 适用场景
+## 输出
 
-适合：
+```text
+commit: a1b2c3d
+date:   2026-07-03 16:51:00 +0800
+msg:    update model artifact
 
-- `.so` 动态库版本追踪；
-- 模型文件版本确认；
-- 固件、资源文件历史核查。
+  modified   7af6...  123456       models/example.onnx
+  deleted    -        -            models/legacy.onnx
+```
 
-不适合：
+输出的校验值针对该提交 tree 中保存的 blob 内容。若文件由 Git LFS 管理，默认计算的是 LFS pointer 的内容，而不是远端 LFS 实体。
 
-- 判断代码逻辑是否一致；
-- 分析二进制 ABI 差异；
-- 替代完整发布管理系统。
+## 与普通 Git 查询的区别
 
----
+```bash
+git rev-list -n 10 HEAD
+```
 
-## 限制
+回答的是“最近 10 个仓库提交”。这些提交可能都没有修改目标文件。
 
-当前版本：
+```bash
+git log -- path/to/file
+```
 
-支持：
+适合精确路径，但不直接解决一组正则匹配文件的实体身份、大小和删除状态问题。
 
-- 文件正则匹配；
-- 修改、新增、删除检测；
-- 内容 hash。
+本工具持续遍历历史，直到找到指定数量的目标文件变化提交。
 
-暂不支持：
+## 运行要求
 
-- 复杂 rename 追踪；
-- Git LFS 对象分析；
-- 二进制 ABI 差异分析。
+- Bash 4 及以上版本；
+- Git；
+- GNU `sort`、`awk`；
+- `sha256sum` 或 `md5sum`。
+
+macOS 默认缺少 GNU checksum 命令，需要安装 GNU coreutils，或在兼容环境中运行。
+
+## 行为边界
+
+- 使用 `git diff-tree -m` 检查 merge commit；同一路径相对多个父提交出现时按路径去重；
+- 使用 `--no-renames`，rename 会表现为删除旧路径并新增新路径；
+- 路径匹配使用 Bash 扩展正则表达式，不是 shell glob；
+- 文件名包含换行符时，最终排序输出不受支持；普通空格不受影响；
+- MD5 仅适合快速内容比较，默认使用 SHA-256；
+- 工具确认的是文件实体变化，不分析 ELF ABI、模型语义或代码逻辑差异。
+
+## 退出码
+
+| 退出码 | 含义 |
+|---|---|
+| `0` | 查询成功 |
+| `1` | 仓库、revision 或 Git 对象读取失败 |
+| `2` | 参数或正则表达式错误 |
+| `3` | 未找到匹配变化 |
+| `127` | 缺少运行依赖 |
+
+## 安装
+
+```bash
+install -m 0755 \
+  git/git-history-file/git-history-file.sh \
+  ~/.local/bin/git-history-file
+```
