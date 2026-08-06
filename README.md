@@ -23,7 +23,7 @@ DevToolkit/
 ├── linux/      # Linux 系统诊断与通用工具
 ├── network/    # 网络、代理、SSH 与文件传输工具
 ├── data/       # 数据集与文件管理工具
-├── model/      # 模型制品、校验与部署辅助工具
+├── model/      # 模型工具链、制品检查与部署辅助工具
 └── docs/       # 仓库规范及跨工具文档
 ```
 
@@ -33,13 +33,20 @@ DevToolkit/
 
 ### Git
 
-- [`git/history-file-md5.sh`](git/history-file-md5.sh)：查找最近若干个真正修改过目标文件的提交，并输出这些文件在对应提交后的 MD5。
+- [`git/git-history-file/`](git/git-history-file/)：查找最近若干个真正修改过目标文件的提交，并输出状态、内容校验值、大小和路径。
 
 ### Terminal
 
 - [`terminal/tmux/`](terminal/tmux/)：通用终端复用、SSH 断线保护、多窗口管理与自动化控制。
 - [`terminal/herdr/`](terminal/herdr/)：面向多个 Coding Agent 的终端复用、状态汇总、远程接入与 Agent 编排。
 - [`terminal/README.md`](terminal/README.md)：tmux 与 Herdr 的职责边界和选择方法。
+
+### Model
+
+- [`model/python-model-tools/`](model/python-model-tools/)：ONNX、RKNN 及相关视觉模型 Python 工具的权威来源、职责、平台边界、维护状态和验证要求索引。
+- [`model/README.md`](model/README.md)：模型工具与 `vision-workbench` 中模型工程知识、实验和诊断的职责边界。
+
+模型工具目录只保存索引、确定性工具和使用边界，不提交第三方 wheel、SDK、模型权重或项目虚拟环境。
 
 ## 工具收录标准
 
