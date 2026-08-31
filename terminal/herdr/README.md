@@ -71,6 +71,12 @@ Herdr 的核心价值不是“更现代的分屏”，而是把 **Agent 身份�
 
 ## 运行模型
 
+日常管理时优先记住四个稳定边界：**session → workspace → pane → agent**。`tab` 是 workspace 内部的功能视图，用来组织 agents / build / logs 等工作面，不作为新的隔离边界。
+
+<p align="center">
+  <img src="./assets/herdr-hierarchy.svg" width="100%" alt="Herdr session workspace pane agent hierarchy and management guidance" />
+</p>
+
 ```text
 Herdr client / TUI
        ↓
