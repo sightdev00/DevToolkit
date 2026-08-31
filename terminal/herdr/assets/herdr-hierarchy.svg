@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="920" viewBox="0 0 1500 920" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1500" y2="920" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F7F9FF"/>
+      <stop offset="1" stop-color="#F8FFFC"/>
+    </linearGradient>
+    <linearGradient id="sessionG" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#6D5DFB"/><stop offset="1" stop-color="#8B7CFF"/></linearGradient>
+    <linearGradient id="workspaceG" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#2477E8"/><stop offset="1" stop-color="#54A2FF"/></linearGradient>
+    <linearGradient id="paneG" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#E58922"/><stop offset="1" stop-color="#F6B54A"/></linearGradient>
+    <linearGradient id="agentG" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#1FA66A"/><stop offset="1" stop-color="#3CCB8B"/></linearGradient>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L12,6 L0,12 Z" fill="#8390A6"/></marker>
+    <style>
+      .font { font-family: Inter, "Noto Sans CJK SC", "Microsoft YaHei", "PingFang SC", Arial, sans-serif; }
+      .title { font-size: 42px; font-weight: 800; fill: #14213A; }
+      .subtitle { font-size: 20px; font-weight: 500; fill: #65738A; }
+      .label { font-size: 28px; font-weight: 800; fill: white; }
+      .scope { font-size: 17px; font-weight: 600; fill: rgba(255,255,255,0.9); }
+      .bodyTitle { font-size: 21px; font-weight: 800; fill: #1D293D; }
+      .body { font-size: 18px; font-weight: 500; fill: #536176; }
+      .rule { font-size: 18px; font-weight: 700; fill: #27374F; }
+      .small { font-size: 16px; font-weight: 500; fill: #64748B; }
+    </style>
+  </defs>
+  <rect width="1500" height="920" rx="28" fill="url(#bg)"/>
+  <g class="font">
+    <text x="750" y="66" text-anchor="middle" class="title">Herdr 层级使用与管理</text>
+    <text x="750" y="102" text-anchor="middle" class="subtitle">按“隔离 → 项目 → 终端职责 → Agent 执行”逐层管理，避免把所有东西堆在同一个层级</text>
+    <rect x="48" y="148" width="138" height="628" rx="24" fill="#EEF2FF" stroke="#DDE4F3"/>
+    <text x="117" y="190" text-anchor="middle" font-size="16" font-weight="800" fill="#5D6B82">管理边界</text>
+    <line x1="117" y1="226" x2="117" y2="724" stroke="#C7D0E0" stroke-width="3"/>
+    <circle cx="117" cy="260" r="12" fill="#7868FF"/><circle cx="117" cy="410" r="12" fill="#3B8EF1"/><circle cx="117" cy="560" r="12" fill="#EEA13B"/><circle cx="117" cy="710" r="12" fill="#2BBC7D"/>
+    <g id="session">
+      <rect x="220" y="172" width="1050" height="128" rx="22" fill="white"/><rect x="220" y="172" width="250" height="128" rx="22" fill="url(#sessionG)"/><rect x="448" y="172" width="22" height="128" fill="url(#sessionG)"/>
+      <circle cx="276" cy="220" r="28" fill="rgba(255,255,255,0.18)"/><text x="276" y="228" text-anchor="middle" font-size="24" font-weight="800" fill="white">S</text><text x="320" y="216" class="label">session</text><text x="320" y="248" class="scope">运行命名空间 / 最外层隔离</text>
+      <text x="506" y="209" class="bodyTitle">什么时候新建</text><text x="506" y="241" class="body">只有确实需要隔离 socket、pane 和状态时才新建。</text><rect x="1000" y="200" width="220" height="48" rx="24" fill="#F1EEFF"/><text x="1110" y="231" text-anchor="middle" class="rule" fill="#6858E7">少建 · 稳定复用</text><text x="506" y="272" class="small">默认优先复用现有 session；不要把 session 当成“项目文件夹”。</text>
+    </g>
+    <path d="M745 302 L745 336" stroke="#8390A6" stroke-width="3" marker-end="url(#arrow)"/>
+    <g id="workspace">
+      <rect x="220" y="326" width="1050" height="128" rx="22" fill="white"/><rect x="220" y="326" width="250" height="128" rx="22" fill="url(#workspaceG)"/><rect x="448" y="326" width="22" height="128" fill="url(#workspaceG)"/>
+      <circle cx="276" cy="374" r="28" fill="rgba(255,255,255,0.18)"/><text x="276" y="382" text-anchor="middle" font-size="24" font-weight="800" fill="white">W</text><text x="310" y="370" class="label" font-size="25">workspace</text><text x="320" y="402" class="scope">项目 / 仓库 / 长期任务</text>
+      <text x="506" y="363" class="bodyTitle">如何划分</text><text x="506" y="395" class="body">通常一个仓库或一项长期任务对应一个 workspace。</text><rect x="1000" y="354" width="220" height="48" rx="24" fill="#EDF6FF"/><text x="1110" y="385" text-anchor="middle" class="rule" fill="#2879D9">按项目组织</text><text x="506" y="426" class="small">数据集、NFS 大目录作为引用路径，不要直接拿来当 workspace 根。</text>
+    </g>
+    <g id="tab-helper"><path d="M745 456 L745 482" stroke="#8390A6" stroke-width="3"/><rect x="578" y="480" width="334" height="48" rx="24" fill="#EEF8FF" stroke="#8ECBF7" stroke-dasharray="7 6"/><text x="745" y="510" text-anchor="middle" class="small" fill="#3C7FAF"><tspan font-weight="800">tab</tspan>：workspace 内的功能视图（agents / build / logs）</text><path d="M745 528 L745 552" stroke="#8390A6" stroke-width="3" marker-end="url(#arrow)"/></g>
+    <g id="pane">
+      <rect x="220" y="542" width="1050" height="128" rx="22" fill="white"/><rect x="220" y="542" width="250" height="128" rx="22" fill="url(#paneG)"/><rect x="448" y="542" width="22" height="128" fill="url(#paneG)"/>
+      <circle cx="276" cy="590" r="28" fill="rgba(255,255,255,0.20)"/><text x="276" y="598" text-anchor="middle" font-size="24" font-weight="800" fill="white">P</text><text x="320" y="586" class="label">pane</text><text x="320" y="618" class="scope">真实 PTY / 终端执行单元</text>
+      <text x="506" y="579" class="bodyTitle">如何拆分</text><text x="506" y="611" class="body">按执行职责拆 pane：implementation / review / test / shell。</text><rect x="1000" y="570" width="220" height="48" rx="24" fill="#FFF6E9"/><text x="1110" y="601" text-anchor="middle" class="rule" fill="#B96C12">一个 pane 一个职责</text><text x="506" y="642" class="small">pane 可以跑 Shell、Agent 或普通进程；pane 本身不等于 Agent。</text>
+    </g>
+    <path d="M745 672 L745 706" stroke="#8390A6" stroke-width="3" marker-end="url(#arrow)"/>
+    <g id="agent">
+      <rect x="220" y="696" width="1050" height="128" rx="22" fill="white"/><rect x="220" y="696" width="250" height="128" rx="22" fill="url(#agentG)"/><rect x="448" y="696" width="22" height="128" fill="url(#agentG)"/>
+      <circle cx="276" cy="744" r="28" fill="rgba(255,255,255,0.20)"/><text x="276" y="752" text-anchor="middle" font-size="24" font-weight="800" fill="white">A</text><text x="320" y="740" class="label">agent</text><text x="320" y="772" class="scope">Coding Agent 进程 / 生命周期状态</text>
+      <text x="506" y="733" class="bodyTitle">如何管理</text><text x="506" y="765" class="body">一个 pane 尽量承载一个主要 Agent 角色。</text><rect x="1000" y="724" width="220" height="48" rx="24" fill="#EDFBF4"/><text x="1110" y="755" text-anchor="middle" class="rule" fill="#178857">按角色执行</text><text x="506" y="790" class="small">状态与责任更容易追踪；working / blocked / done / idle 只用于注意力调度。</text>
+    </g>
+    <rect x="220" y="850" width="1050" height="46" rx="23" fill="#17253D"/><text x="745" y="880" text-anchor="middle" font-size="18" font-weight="750" fill="white">记忆口诀：Session 管隔离 · Workspace 管项目 · Pane 管职责 · Agent 管执行</text>
+    <rect x="1300" y="326" width="150" height="344" rx="22" fill="#FFFFFF" stroke="#DCE4EF"/><text x="1375" y="366" text-anchor="middle" font-size="16" font-weight="800" fill="#536176">核心原则</text><line x1="1324" y1="386" x2="1426" y2="386" stroke="#E6EBF2"/><text x="1375" y="426" text-anchor="middle" class="small">从稳定边界</text><text x="1375" y="452" text-anchor="middle" class="small">逐层向下拆</text><text x="1375" y="500" text-anchor="middle" class="small">不要为了</text><text x="1375" y="526" text-anchor="middle" class="small">“看起来整齐”</text><text x="1375" y="552" text-anchor="middle" class="small">过度创建层级</text><line x1="1324" y1="580" x2="1426" y2="580" stroke="#E6EBF2"/><text x="1375" y="616" text-anchor="middle" font-size="15" font-weight="700" fill="#315B7A">tab 是视图</text><text x="1375" y="642" text-anchor="middle" font-size="15" font-weight="700" fill="#315B7A">不是新隔离边界</text>
+  </g>
+</svg>
